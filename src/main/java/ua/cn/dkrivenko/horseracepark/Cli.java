@@ -87,13 +87,13 @@ public class Cli {
 	}
 
 	private void startEventLoop() {
+		displayTellerMachineState();
 		while (true) {
-			displayTellerMachineState();
-
 			String input = getInput();
 			if (input == null) {
 				break;
 			}
+			
 			String command = input.toUpperCase().trim();
 			Matcher matcher = commandPattern.matcher(command);
 			if (!matcher.matches()) {
@@ -129,8 +129,8 @@ public class Cli {
 						displayPayout(tellerMachine.getHorse(horseNumber).getName(), payout.getAmount(), payout.getDispensing());
 					}
 				}
-
 			}
+			displayTellerMachineState();
 		}
 	}
 
