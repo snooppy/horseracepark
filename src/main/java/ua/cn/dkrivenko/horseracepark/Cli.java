@@ -50,7 +50,7 @@ public class Cli {
 
 	private String getInventoryAsString() {
 		return String.format("Inventory:%s%s",
-			NEWLINE, getDispensingAsString(tellerMachine.getInventory()));
+				NEWLINE, getDispensingAsString(tellerMachine.getInventory()));
 	}
 
 	private String getHorsesAsString() {
@@ -67,13 +67,14 @@ public class Cli {
 	}
 
 	private void displayPayout(String horseName, int payout, Map<Integer, Integer> dispensing) {
+		displayTellerMachineState();
 		writeOutput(getPayoutAsString(horseName, payout, dispensing));
 	}
 
 	private String getPayoutAsString(String horseName, int payout, Map<Integer, Integer> dispensing) {
 		String dispensingAsString = String.format("Dispensing:%s%s", NEWLINE, getDispensingAsString(dispensing));
 		return String.format("Payout: %s,%d%s%s",
-			horseName, payout, NEWLINE, dispensingAsString);
+				horseName, payout, NEWLINE, dispensingAsString);
 	}
 
 	private String getDispensingAsString(Map<Integer, Integer> dispensing) {
@@ -83,6 +84,7 @@ public class Cli {
 	}
 
 	private void displayErrorMessage(String message) {
+		displayTellerMachineState();
 		writeOutput(message);
 	}
 
@@ -93,7 +95,7 @@ public class Cli {
 			if (input == null) {
 				break;
 			}
-			
+
 			String command = input.toUpperCase().trim();
 			Matcher matcher = commandPattern.matcher(command);
 			if (!matcher.matches()) {
@@ -102,12 +104,14 @@ public class Cli {
 				System.exit(0);
 			} else if (command.equals("R")) { //'R' or 'r' - restocks the cash inventory
 				tellerMachine.restock();
+				displayTellerMachineState();
 			} else if (command.startsWith("W")) { //'W' or 'w' [<horse number>] - sets the winning horse number
 				int horseNumber = Integer.parseInt(matcher.group("wonnum"));
 				if (!tellerMachine.isValidHorseNumber(horseNumber)) {
 					displayErrorMessage(String.format("Invalid Horse Number: %d", horseNumber));
 				} else {
 					tellerMachine.setWinningHorse(horseNumber);
+					displayTellerMachineState();
 				}
 			} else { //[<horse number>] <amount> - specifies the horse wagered on and the amount of the bet
 				int horseNumber = Integer.parseInt(matcher.group("num"));
@@ -117,6 +121,10 @@ public class Cli {
 					continue;
 				}
 				int betAmount = Integer.parseInt(matcher.group("bet"));
+				if (betAmount <= 0) {
+					displayErrorMessage(String.format("Invalid Bet: %s", bet));
+					continue;
+				}
 				if (!tellerMachine.isValidHorseNumber(horseNumber)) {
 					displayErrorMessage(String.format("Invalid Horse Number: %d", horseNumber));
 				} else if (tellerMachine.getHorse(horseNumber).getWinStatus() != Horse.WinStatus.WON) {
@@ -130,7 +138,6 @@ public class Cli {
 					}
 				}
 			}
-			displayTellerMachineState();
 		}
 	}
 
